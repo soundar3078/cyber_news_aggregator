@@ -55,7 +55,11 @@ export default function AiSummarySection({ threatsToSummarize }: AiSummarySectio
       <CardHeader>
         <div className="flex items-center justify-between">
             <CardTitle className="text-lg">AI Threat Summary</CardTitle>
-            <Button onClick={handleGenerateSummary} disabled={isLoading || threatsToSummarize.length === 0}>
+            <Button 
+              onClick={handleGenerateSummary} 
+              disabled={isLoading || threatsToSummarize.length === 0}
+              className="bg-green-600 hover:bg-green-700 text-primary-foreground rounded-lg"
+            >
             {isLoading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
