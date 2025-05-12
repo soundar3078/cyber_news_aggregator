@@ -6,15 +6,10 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import AppLayout from "@/components/layout/app-layout";
 
-const geistSans = GeistSans({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-});
-
-const geistMono = GeistMono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-});
+// Note: GeistSans and GeistMono are imported as objects.
+// They are not functions to be called.
+// Their 'variable' property contains the CSS custom property name.
+// Subsets and variable names are typically pre-configured by the font loader.
 
 export const metadata: Metadata = {
   title: 'ThreatWatch',
@@ -28,7 +23,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={`${geistSans.variable} ${geistMono.variable} font-mono antialiased`}>
+      {/*
+        Apply the font CSS variables to the body.
+        GeistSans.variable might be something like '--font-geist-sans'
+        GeistMono.variable might be something like '--font-geist-mono'
+        The `font-mono` class from Tailwind will then use `var(--font-geist-mono)`.
+        The default sans-serif font (if `font-sans` is used) will use `var(--font-geist-sans)`.
+      */}
+      <body className={`${GeistSans.variable} ${GeistMono.variable} font-mono antialiased`}>
         <AppLayout>{children}</AppLayout>
         <Toaster />
       </body>
