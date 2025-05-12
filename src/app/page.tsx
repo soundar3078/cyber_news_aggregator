@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import ThreatCard from '@/components/dashboard/threat-card';
 import ThreatFilters from '@/components/dashboard/threat-filters';
 import AiSummarySection from '@/components/dashboard/ai-summary-section';
@@ -27,13 +26,13 @@ export default function DashboardPage() {
     }, 1000);
   }, []);
 
-  const handleFilterChange = (newFilters: Filters) => {
+  const handleFilterChange = useCallback((newFilters: Filters) => {
     setFilters(newFilters);
-  };
+  }, []); // setFilters from useState is stable, so an empty dependency array is appropriate.
 
-  const handleResetFilters = () => {
+  const handleResetFilters = useCallback(() => {
     setFilters({});
-  };
+  }, []);
 
   const filteredThreats = useMemo(() => {
     if (isLoading) return [];
@@ -122,4 +121,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
