@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import NextLink from 'next/link';
 import { Slot } from "@radix-ui/react-slot"
 import { VariantProps, cva } from "class-variance-authority"
 import { PanelLeft } from "lucide-react"
@@ -534,11 +535,15 @@ const sidebarMenuButtonVariants = cva(
 )
 
 const SidebarMenuButton = React.forwardRef<
-  HTMLButtonElement,
-  React.ComponentProps<"button"> & {
-    asChild?: boolean
-    isActive?: boolean
-    tooltip?: string | React.ComponentProps<typeof TooltipContent>
+  HTMLAnchorElement | HTMLButtonElement,
+  Omit<React.ComponentProps<"button">, "href"> &
+  Omit<React.ComponentProps<"a">, "href"> &
+  {
+    asChild?: boolean;
+    isActive?: boolean;
+    href?: string;
+    tooltip?: string | React.ComponentProps<typeof TooltipContent>;
+    children?: React.ReactNode;
   } & VariantProps<typeof sidebarMenuButtonVariants>
 >(
   (
@@ -549,37 +554,60 @@ const SidebarMenuButton = React.forwardRef<
       size = "default",
       tooltip,
       className,
+      href,
+      children,
       ...props
     },
     ref
   ) => {
-    const Comp = asChild ? Slot : "button"
-    const { isMobile, state } = useSidebar()
+    const { isMobile, state } = useSidebar();
 
-    const button = (
-      <Comp
-        ref={ref}
-        data-sidebar="menu-button"
-        data-size={size}
-        data-active={isActive}
-        className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
-        {...props}
-      />
-    )
+    const commonProps = {
+      "data-sidebar": "menu-button",
+      "data-size": size,
+      "data-active": isActive,
+      className: cn(sidebarMenuButtonVariants({ variant, size }), className),
+      ...props,
+    };
+
+    let element: JSX.Element;
+
+    if (href) {
+      if (asChild) {
+        element = (
+          <NextLink href={href} passHref legacyBehavior>
+            <Slot {...commonProps} ref={ref as React.Ref<HTMLAnchorElement>}>
+              {children}
+            </Slot>
+          </NextLink>
+        );
+      } else {
+        element = (
+          <NextLink href={href} {...commonProps} ref={ref as React.Ref<HTMLAnchorElement>}>
+            {children}
+          </NextLink>
+        );
+      }
+    } else {
+      const Comp = asChild ? Slot : "button";
+      element = (
+        <Comp {...commonProps} ref={ref as React.Ref<HTMLButtonElement>}>
+          {children}
+        </Comp>
+      );
+    }
 
     if (!tooltip) {
-      return button
+      return element;
     }
 
     if (typeof tooltip === "string") {
-      tooltip = {
-        children: tooltip,
-      }
+      tooltip = { children: tooltip };
     }
 
     return (
       <Tooltip>
-        <TooltipTrigger asChild>{button}</TooltipTrigger>
+        <TooltipTrigger asChild>{element}</TooltipTrigger>
         <TooltipContent
           side="right"
           align="center"
@@ -587,9 +615,9 @@ const SidebarMenuButton = React.forwardRef<
           {...tooltip}
         />
       </Tooltip>
-    )
+    );
   }
-)
+);
 SidebarMenuButton.displayName = "SidebarMenuButton"
 
 const SidebarMenuAction = React.forwardRef<
