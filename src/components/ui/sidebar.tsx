@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -5,7 +6,7 @@ import NextLink from 'next/link';
 import { Slot } from "@radix-ui/react-slot"
 import { VariantProps, cva } from "class-variance-authority"
 import { PanelLeft } from "lucide-react"
-import { usePathname } from 'next/navigation'; // Import usePathname
+import { usePathname } from 'next/navigation'; 
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
@@ -86,7 +87,9 @@ const SidebarProvider = React.forwardRef<
         }
 
         // This sets the cookie to keep the sidebar state.
-        document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
+        if (typeof window !== 'undefined') {
+          document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
+        }
       },
       [setOpenProp, open]
     )
@@ -541,34 +544,45 @@ const SidebarMenuButton = React.forwardRef<
   Omit<React.ComponentProps<"a">, "href"> &
   {
     asChild?: boolean;
-    // isActive?: boolean; // Removed as NextLink handles this or parent can manage
     href?: string;
     tooltip?: string | React.ComponentProps<typeof TooltipContent>;
     children?: React.ReactNode;
+    isActive?: boolean; // Allow explicit isActive override
   } & VariantProps<typeof sidebarMenuButtonVariants>
 >(
   (
     {
       asChild = false,
-      // isActive = false, // Removed
       variant = "default",
       size = "default",
       tooltip,
       className,
       href,
       children,
+      isActive: isActiveProp, // Use isActiveProp to avoid conflict
       ...props
     },
     ref
   ) => {
     const { isMobile, state } = useSidebar();
-    const pathname = usePathname(); // Get current path
-    const isActive = href ? pathname === href || (href === "/" && pathname.startsWith("/?"))  : false; // Determine active state
+    const pathname = usePathname();
+    
+    // Determine active state:
+    // 1. Use isActiveProp if provided.
+    // 2. If href is provided, check if current pathname matches or (for root) starts with it.
+    //    Handle root path ("/") carefully to avoid matching all subpaths.
+    //    Consider query parameters if href includes them (though typically sidebar links are base paths).
+    const isActive = typeof isActiveProp === 'boolean' 
+      ? isActiveProp 
+      : href 
+        ? (pathname === href || (href === "/" && pathname === "/")) // Exact match for root
+          || (href !== "/" && pathname.startsWith(href) && (pathname.length === href.length || pathname[href.length] === '/' || pathname[href.length] === '?')) // Starts with for non-root
+        : false;
 
     const commonProps = {
       "data-sidebar": "menu-button",
       "data-size": size,
-      "data-active": isActive, // Use calculated isActive
+      "data-active": isActive,
       className: cn(sidebarMenuButtonVariants({ variant, size }), className),
       ...props,
     };
@@ -576,8 +590,6 @@ const SidebarMenuButton = React.forwardRef<
     let element: JSX.Element;
 
     if (href) {
-        // For NextLink, if asChild is true, it expects a single child that can take a ref.
-        // If asChild is false, NextLink itself is the anchor.
         if (asChild) {
             element = (
               <NextLink href={href} passHref legacyBehavior>
@@ -795,3 +807,4 @@ export {
   SidebarTrigger,
   useSidebar,
 }
+
