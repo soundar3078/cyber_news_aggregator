@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { Filters, ThreatSeverity } from '@/types';
@@ -12,10 +13,12 @@ import {
 } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { CalendarIcon, RotateCcwIcon, FilterXIcon } from 'lucide-react';
+import { CalendarIcon, RotateCcwIcon } from 'lucide-react'; // Removed FilterXIcon as it's not used
 import { format } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
 import React, { useState, useEffect } from 'react';
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 type ThreatFiltersProps = {
   onFilterChange: (filters: Filters) => void;
@@ -25,6 +28,8 @@ type ThreatFiltersProps = {
   availableSources: string[];
   initialFilters?: Filters;
 };
+
+const UNSET_SELECT_VALUE = "__ALL_ITEMS__"; // Unique non-empty string for "All" options
 
 export default function ThreatFilters({
   onFilterChange,
@@ -36,12 +41,11 @@ export default function ThreatFilters({
 }: ThreatFiltersProps) {
   const [searchTerm, setSearchTerm] = useState(initialFilters.searchTerm || '');
   const [threatType, setThreatType] = useState(initialFilters.threatType || '');
-  const [severity, setSeverity] = useState(initialFilters.severity || '');
+  const [severity, setSeverity] = useState<ThreatSeverity | ''>(initialFilters.severity || '');
   const [source, setSource] = useState(initialFilters.source || '');
   const [dateRange, setDateRange] = useState<DateRange | undefined>(initialFilters.dateRange);
 
   useEffect(() => {
-    // Debounce or immediate apply
     const filters: Filters = {
       searchTerm: searchTerm || undefined,
       threatType: threatType || undefined,
@@ -81,12 +85,17 @@ export default function ThreatFilters({
 
           <div className="space-y-1">
             <Label htmlFor="threatType">Type</Label>
-            <Select value={threatType} onValueChange={setThreatType}>
+            <Select
+              value={threatType === '' ? UNSET_SELECT_VALUE : threatType}
+              onValueChange={(selectedValue) => {
+                setThreatType(selectedValue === UNSET_SELECT_VALUE ? '' : selectedValue);
+              }}
+            >
               <SelectTrigger id="threatType" className="bg-input">
                 <SelectValue placeholder="All Types" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Types</SelectItem>
+                <SelectItem value={UNSET_SELECT_VALUE}>All Types</SelectItem>
                 {availableTypes.map((type) => (
                   <SelectItem key={type} value={type}>
                     {type}
@@ -98,12 +107,17 @@ export default function ThreatFilters({
 
           <div className="space-y-1">
             <Label htmlFor="severity">Severity</Label>
-            <Select value={severity} onValueChange={(value) => setSeverity(value as ThreatSeverity)}>
+            <Select
+              value={severity === '' ? UNSET_SELECT_VALUE : severity}
+              onValueChange={(selectedValue) => {
+                setSeverity(selectedValue === UNSET_SELECT_VALUE ? '' : selectedValue as ThreatSeverity);
+              }}
+            >
               <SelectTrigger id="severity" className="bg-input">
                 <SelectValue placeholder="All Severities" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Severities</SelectItem>
+                <SelectItem value={UNSET_SELECT_VALUE}>All Severities</SelectItem>
                 {availableSeverities.map((sev) => (
                   <SelectItem key={sev} value={sev}>
                     {sev}
@@ -115,12 +129,17 @@ export default function ThreatFilters({
 
           <div className="space-y-1">
             <Label htmlFor="source">Source</Label>
-            <Select value={source} onValueChange={setSource}>
+            <Select
+              value={source === '' ? UNSET_SELECT_VALUE : source}
+              onValueChange={(selectedValue) => {
+                setSource(selectedValue === UNSET_SELECT_VALUE ? '' : selectedValue);
+              }}
+            >
               <SelectTrigger id="source" className="bg-input">
                 <SelectValue placeholder="All Sources" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Sources</SelectItem>
+                <SelectItem value={UNSET_SELECT_VALUE}>All Sources</SelectItem>
                 {availableSources.map((src) => (
                   <SelectItem key={src} value={src}>
                     {src}
@@ -130,7 +149,6 @@ export default function ThreatFilters({
             </Select>
           </div>
           
-          {/* Date Range Picker - simplified for now, can be expanded */}
           <div className="space-y-1">
             <Label htmlFor="dateRange">Date Range</Label>
             <Popover>
@@ -176,7 +194,3 @@ export default function ThreatFilters({
     </Card>
   );
 }
-
-// Import Label, Card etc.
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
