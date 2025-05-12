@@ -40,13 +40,13 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton href="#" tooltip="Analytics">
+                <SidebarMenuButton href="/analytics" tooltip="Analytics">
                   <BarChart3 />
                    <span className="group-data-[collapsible=icon]:hidden">Analytics</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton href="#" tooltip="Settings">
+                <SidebarMenuButton href="/settings" tooltip="Settings">
                   <Settings />
                   <span className="group-data-[collapsible=icon]:hidden">Settings</span>
                 </SidebarMenuButton>
