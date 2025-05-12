@@ -58,7 +58,7 @@ export default function AiSummarySection({ threatsToSummarize }: AiSummarySectio
             <Button 
               onClick={handleGenerateSummary} 
               disabled={isLoading || threatsToSummarize.length === 0}
-              className="bg-green-600 hover:bg-green-700 text-primary-foreground rounded-lg"
+              className="bg-green-500 hover:bg-green-600 text-white dark:bg-green-600 dark:hover:bg-green-700 dark:text-primary-foreground rounded-xl px-6 py-2.5 text-sm font-semibold shadow-md hover:shadow-lg transition-all duration-150 ease-in-out"
             >
             {isLoading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
