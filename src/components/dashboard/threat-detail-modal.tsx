@@ -18,6 +18,7 @@ interface ThreatDetailModalProps {
   onClose: () => void;
 }
 
+
 export default function ThreatDetailModal({ threat, isOpen, onClose }: ThreatDetailModalProps) {
   if (!threat) return null;
 
